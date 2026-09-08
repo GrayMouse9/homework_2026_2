@@ -81,17 +81,6 @@ QUnit.module('Тестируем функцию deepClone', () => {
         assert.notStrictEqual(cloned.created, original.created, 'Дата должна быть независимым объектом');
     });
 
-    QUnit.test('Обрабатывает циклические ссылки', (assert) => {
-        const original = { name: 'узел' };
-        original.self = original;
-
-        const cloned = deepClone(original);
-
-        assert.strictEqual(cloned.name, 'узел', 'Обычное поле должно скопироваться');
-        assert.strictEqual(cloned.self, cloned, 'Циклическая ссылка должна указывать на копию');
-        assert.notStrictEqual(cloned.self, original, 'Копия не должна ссылаться на оригинал');
-    });
-
     QUnit.test('Копирует значения объекта без прототипа, но не сам прототип', (assert) => {
         const original = Object.create(null);
         original.x = 1;

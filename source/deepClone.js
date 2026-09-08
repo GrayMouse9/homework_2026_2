@@ -4,8 +4,7 @@
  * Функция, создающая глубокую копию значения:
  * вложенные объекты и массивы копируются, а не переиспользуются по ссылке
  *
- * Поддерживаются примитивы, обычные объекты, массивы и Date,
- * в том числе структуры с циклическими ссылками.
+ * Поддерживаются примитивы, обычные объекты, массивы и Date.
  *
  * Ограничения области применения:
  * - прототип не сохраняется, копия любого объекта является обычным объектом;
@@ -13,10 +12,9 @@
  * - Map, Set, RegExp и другие встроенные типы не поддерживаются:
  *   их содержимое лежит во внутренних слотах, а не в собственных свойствах,
  *   поэтому копия окажется пустым объектом
+ * - циклические ссылки приводят к переполнению стека
  *
  * @param {*} value - значение любого типа
- * @param {WeakMap} [seen] - служебный параметр: объекты, уже скопированные
- * в текущем вызове; нужен для обработки циклических ссылок
  *
  * @example
  * // returns { a: 1, b: { c: 2 } }
@@ -24,7 +22,7 @@
  *
  * @returns {*}
  */
-const deepClone = (value, seen = new WeakMap()) => {
+const deepClone = (value) => {
     if (typeof value !== 'object' || value === null) {
         return value;
     }
@@ -33,17 +31,11 @@ const deepClone = (value, seen = new WeakMap()) => {
         return new Date(value.getTime());
     }
 
-    if (seen.has(value)) {
-        return seen.get(value);
+    if (Array.isArray(value)) {
+        return value.map(deepClone);
     }
 
-    const copy = Array.isArray(value) ? [] : {};
-
-    seen.set(value, copy);
-
-    Object.entries(value).forEach(([key, item]) => {
-        copy[key] = deepClone(item, seen);
-    });
-
-    return copy;
+    return Object.fromEntries(
+        Object.entries(value).map(([key, item]) => [key, deepClone(item)])
+    );
 };
