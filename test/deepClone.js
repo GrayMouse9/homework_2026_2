@@ -99,4 +99,19 @@ QUnit.module('Тестируем функцию deepClone', () => {
         assert.deepEqual(cloned.map, {}, 'Содержимое Map лежит во внутренних слотах и не копируется');
         assert.deepEqual(cloned.set, {}, 'Содержимое Set лежит во внутренних слотах и не копируется');
     });
+
+    QUnit.test('Объект-обёртка String не входит в область применения функции', (assert) => {
+        const cloned = deepClone(new String('abc'));
+
+        assert.notOk(cloned instanceof String, 'Копия перестаёт быть обёрткой и становится обычным объектом');
+        assert.deepEqual(cloned, { 0: 'a', 1: 'b', 2: 'c' },
+            'Индексы символов являются собственными свойствами, поэтому в копию попадают только они');
+    });
+
+    QUnit.test('Объект-обёртка Number не входит в область применения функции', (assert) => {
+        const cloned = deepClone(new Number(123));
+
+        assert.notOk(cloned instanceof Number, 'Копия перестаёт быть обёрткой и становится обычным объектом');
+        assert.deepEqual(cloned, {}, 'Само число лежит во внутреннем слоте и не копируется');
+    });
 });
